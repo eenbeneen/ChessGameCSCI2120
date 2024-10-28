@@ -4,8 +4,8 @@
 void showBoard(char board[][8]) {
 	
 	for (int i = 0; i < 8; i++) {
-		char c = 'A' + i;
-		std::cout << c << "  ";
+		
+		std::cout << 8-i << "  ";
 		for (int j = 0; j < 8; j++) {
 			std::cout << " " << board[i][j];
 
@@ -14,8 +14,9 @@ void showBoard(char board[][8]) {
 
 	}
 	std::cout << std::endl << "    ";
-	for (int i = 1; i <= 8; i++) {
-		std::cout << i << " ";
+	for (int i = 0; i < 8; i++) {
+		char c = 'A' + i;
+		std::cout << c << " ";
 	}
 	
 
