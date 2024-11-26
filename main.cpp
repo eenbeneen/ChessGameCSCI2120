@@ -10,10 +10,18 @@ std::vector<int> convertToVector(int x, int y) {
 class Piece {
 public:
 	//Position variables that can be 0-7
-	int xPos = 0;
-	int yPos = 0;
+	int xPos;
+	int yPos;
 	//Boolean thats true if the piece is white, false if black
 	bool isWhite;
+	
+	//Set the x position and y position, of the piece and if it's white (t/f)
+	Piece(int x = 0, int y = 0, bool white = true) {
+		xPos = x;
+		yPos = y;
+		isWhite = white;
+	}
+
 	//Get moves function that currently returns an empty vector of int vectors
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
@@ -24,6 +32,11 @@ public:
 
 class Pawn: public Piece {
 public:
+
+	Pawn(int x = 0, int y = 0, bool white = true) {
+		Piece(x, y, white);
+	}
+
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
 
@@ -32,6 +45,11 @@ public:
 
 class Rook : public Piece {
 public:
+
+	Rook(int x = 0, int y = 0, bool white = true) {
+		Piece(x, y, white);
+	}
+
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 
 		
@@ -85,24 +103,72 @@ public:
 
 class Bishop : public Piece {
 public:
+
+	Bishop(int x = 0, int y = 0, bool white = true) {
+		Piece(x, y, white);
+	}
+
+
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
+
+		for (int xdir = -1; xdir <= 1; xdir += 2) {
+
+			for (int ydir = -1; ydir <= 1; ydir += 2) {
+
+				for (int i = 1; i < 8 && i >= 0; i++) {
+
+					if (board[xPos + i*xdir][yPos + i*ydir] == 0 ) {
+						possibleMoves.push_back(convertToVector(xPos + i*xdir, yPos + i*ydir));
+					}
+					else {
+						//Add capture case later
+						break;
+					}
+				}
+			}
+
+			
+		}
+
+		return possibleMoves;
+
 
 	}
 };
 
 class Queen : public Piece {
 public:
+
+	Queen(int x = 0, int y = 0, bool white = true) {
+		Piece(x, y, white);
+	}
+
+
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
+
+		//Simply use the getMoves function of both the bishop and the rook and combine them
+		Rook rook;
+		Bishop bishop;
+		possibleMoves = rook.getMoves(board);
+		std::vector<std::vector<int>> bishopMoves = bishop.getMoves(board);
+		possibleMoves.insert(possibleMoves.end(), bishopMoves.begin(), bishopMoves.end());
 
 	}
 };
 
 class King : public Piece {
 public:
+
+	King(int x = 0, int y = 0, bool white = true) {
+		Piece(x, y, white);
+	}
+
+
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
+
 
 	}
 };
@@ -146,7 +212,7 @@ int main() {
 	char board[8][8] = {
 
 		{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
-		{0, 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+		{0, 0, 'p', 'p', 'p', 'p', 'p', 'p'},
 		{0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
@@ -163,14 +229,26 @@ int main() {
 
 	std::vector<std::vector<int>> rookMoves = rook.getMoves(board);
 	std::cout << "\n ROOKMOVES SIZE: " << rookMoves.size() << " \n";
+
 	for (int i = 0; i < rookMoves.size(); i++) {
 		
-		for (int j = 0; j < rookMoves.at(i).size(); j++) {
-			std::cout << "(";
-			std::cout << rookMoves.at(i).at(0) << ", " << rookMoves.at(i).at(1);
-			std::cout << ")\n";
-		}
+		std::cout << "(";
+		std::cout << rookMoves.at(i).at(0) << ", " << rookMoves.at(i).at(1);
+		std::cout << ")\n";
 		
+	}
+
+	Bishop bishop(3, 3, true);
+
+	std::vector<std::vector<int>> bishopMoves = bishop.getMoves(board);
+	std::cout << "\n BISHOPMOVES SIZE: " << bishopMoves.size() << " \n";
+
+	for (int i = 0; i < bishopMoves.size(); i++) {
+
+		std::cout << "(";
+		std::cout << bishopMoves.at(i).at(0) << ", " << bishopMoves.at(i).at(1);
+		std::cout << ")\n";
+
 	}
 
 
