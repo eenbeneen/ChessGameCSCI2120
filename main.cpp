@@ -16,7 +16,7 @@ public:
 	bool isWhite;
 	
 	//Set the x position and y position, of the piece and if it's white (t/f)
-	Piece(int x = 0, int y = 0, bool white = true) {
+	Piece(int x, int y, bool white) {
 		xPos = x;
 		yPos = y;
 		isWhite = white;
@@ -33,9 +33,7 @@ public:
 class Pawn: public Piece {
 public:
 
-	Pawn(int x = 0, int y = 0, bool white = true) {
-		Piece(x, y, white);
-	}
+	Pawn(int x, int y, bool white) : Piece(x, y, white) {}
 
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
@@ -46,9 +44,7 @@ public:
 class Rook : public Piece {
 public:
 
-	Rook(int x = 0, int y = 0, bool white = true) {
-		Piece(x, y, white);
-	}
+	Rook(int x, int y, bool white) : Piece(x, y, white) {}
 
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 
@@ -104,24 +100,27 @@ public:
 class Bishop : public Piece {
 public:
 
-	Bishop(int x = 0, int y = 0, bool white = true) {
-		Piece(x, y, white);
-	}
+	Bishop(int x = 3, int y = 3, bool white = true) : Piece(x, y, white) {}
 
 
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
+
 		std::vector<std::vector<int>> possibleMoves;
 
+		//The first two for loops switch between the + or minus x and y direction, 4 loops total
 		for (int xdir = -1; xdir <= 1; xdir += 2) {
 
 			for (int ydir = -1; ydir <= 1; ydir += 2) {
-
+				
+				//For each direction, i the number of spaces away from the current position
 				for (int i = 1; i < 8 && i >= 0; i++) {
-
+					//Check if the space 'i' spaces away in the correct direction is empty
 					if (board[xPos + i*xdir][yPos + i*ydir] == 0 ) {
+						//The space is empty, therefore add it to possible moves
 						possibleMoves.push_back(convertToVector(xPos + i*xdir, yPos + i*ydir));
 					}
 					else {
+						//The space is not empty, end the current path
 						//Add capture case later
 						break;
 					}
@@ -140,20 +139,20 @@ public:
 class Queen : public Piece {
 public:
 
-	Queen(int x = 0, int y = 0, bool white = true) {
-		Piece(x, y, white);
-	}
+	Queen(int x, int y, bool white) : Piece(x, y, white) {}
 
 
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
 
 		//Simply use the getMoves function of both the bishop and the rook and combine them
-		Rook rook;
-		Bishop bishop;
+		Rook rook(xPos, yPos, isWhite);
+		Bishop bishop(xPos, yPos, isWhite);
 		possibleMoves = rook.getMoves(board);
 		std::vector<std::vector<int>> bishopMoves = bishop.getMoves(board);
 		possibleMoves.insert(possibleMoves.end(), bishopMoves.begin(), bishopMoves.end());
+
+		return possibleMoves;
 
 	}
 };
@@ -161,9 +160,7 @@ public:
 class King : public Piece {
 public:
 
-	King(int x = 0, int y = 0, bool white = true) {
-		Piece(x, y, white);
-	}
+	King(int x = 0, int y = 0, bool white = true) : Piece(x, y, white) {}
 
 
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
@@ -208,10 +205,12 @@ int main() {
 		B = bishop
 		Q = queen
 		K = king
+
+		Board goes from top left (0, 0) to bottom right (7, 7)
 	*/
 	char board[8][8] = {
 
-		{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+		{0, 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
 		{0, 0, 'p', 'p', 'p', 'p', 'p', 'p'},
 		{0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
@@ -225,7 +224,8 @@ int main() {
 
 	showBoard(board);
 
-	Rook rook;
+	//Testing rook at position (3, 3)
+	Rook rook(3, 3, true);
 
 	std::vector<std::vector<int>> rookMoves = rook.getMoves(board);
 	std::cout << "\n ROOKMOVES SIZE: " << rookMoves.size() << " \n";
@@ -238,6 +238,7 @@ int main() {
 		
 	}
 
+	//Testing bishop at position (3, 3)
 	Bishop bishop(3, 3, true);
 
 	std::vector<std::vector<int>> bishopMoves = bishop.getMoves(board);
@@ -251,7 +252,19 @@ int main() {
 
 	}
 
+	//Testing queen at position (3, 3)
+	Queen queen(3, 3, true);
 
+	std::vector<std::vector<int>> queenMoves = queen.getMoves(board);
+	std::cout << "\n QUEENMOVES SIZE: " << queenMoves.size() << " \n";
+
+	for (int i = 0; i < queenMoves.size(); i++) {
+
+		std::cout << "(";
+		std::cout << queenMoves.at(i).at(0) << ", " << queenMoves.at(i).at(1);
+		std::cout << ")\n";
+
+	}
 
 
 
