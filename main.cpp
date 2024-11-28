@@ -1,5 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <iomanip> // For std::setw
+
+#define white_square 0xDB
+#define black_square 0xFF
 
 //Function to easily convert 2 coordinates to a vector
 std::vector<int> convertToVector(int x, int y) {
@@ -58,7 +62,7 @@ public:
 			//and every space behind the rook when dir = -1
 			for (int i = xPos + dir; i < 8 && i >= 0; i+=dir) {
 				
-				if (board[i][yPos] == 0) {
+				if (board[i][yPos] == ' ') {
 					//If the space is 0, then the rook can move there, add it to the pos. moves
 					possibleMoves.push_back(convertToVector(i, yPos));
 				}
@@ -74,7 +78,7 @@ public:
 		//Same here, but the for loop checks the rooks path along x
 		for (int dir = 1; dir >= -1; dir -= 2) {
 			for (int i = yPos + dir; i < 8 && i >= 0; i+=dir) {
-				if (board[xPos][i] == 0) {
+				if (board[xPos][i] == ' ') {
 					possibleMoves.push_back(convertToVector(xPos, i));
 				}
 				else {
@@ -115,7 +119,7 @@ public:
 				//For each direction, i the number of spaces away from the current position
 				for (int i = 1; i < 8 && i >= 0; i++) {
 					//Check if the space 'i' spaces away in the correct direction is empty
-					if (board[xPos + i*xdir][yPos + i*ydir] == 0 ) {
+					if (board[xPos + i*xdir][yPos + i*ydir] == ' ') {
 						//The space is empty, therefore add it to possible moves
 						possibleMoves.push_back(convertToVector(xPos + i*xdir, yPos + i*ydir));
 					}
@@ -172,27 +176,38 @@ public:
 
 	
 //This function prints the board to the output window in proper format
+// Function to display the chessboard with alternating black and white squares
 void showBoard(char board[][8]) {
-	
-	for (int i = 0; i < 8; i++) {
-		
-		std::cout << 8-i << "  ";
-		for (int j = 0; j < 8; j++) {
-			std::cout << " " << board[i][j];
+	const int square_width = 5; // Fixed width for each square (including borders and padding)
 
+	for (int i = 0; i < 8; i++) {
+		std::cout << 8 - i << " "; // Row number
+		for (int j = 0; j < 8; j++) {
+			// Determine the square type (alternating black and white squares)
+			if ((i + j) % 2 == 0) {
+				// White square with black text
+				std::cout << "\033[47m\033[30m "; // White background, black text using ANSI escape
+				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
+				std::cout << " \033[0m"; // Reset colors
+			}
+			else {
+				// Black square with white text
+				std::cout << "\033[40m\033[37m "; // Black background, white text using ANSI escape
+				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
+				std::cout << " \033[0m"; // Reset colors
+			}
 		}
 		std::cout << std::endl;
-
 	}
-	std::cout << std::endl << "    ";
+
+	// Display column labels
+	std::cout << "   ";
 	for (int i = 0; i < 8; i++) {
 		char c = 'A' + i;
-		std::cout << c << " ";
+		std::cout << "  " << c << "  ";
 	}
-	
-
+	std::cout << std::endl;
 }
-
 int main() {
 
 	//The starting chess board
@@ -210,12 +225,12 @@ int main() {
 	*/
 	char board[8][8] = {
 
-		{0, 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
-		{0, 0, 'p', 'p', 'p', 'p', 'p', 'p'},
-		{0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0},
+		{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
 		{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
 
@@ -263,10 +278,33 @@ int main() {
 		std::cout << "(";
 		std::cout << queenMoves.at(i).at(0) << ", " << queenMoves.at(i).at(1);
 		std::cout << ")\n";
-
+		
 	}
 
-
+	
 
 	return 0;
 }
+
+/* ANSI wscape
+Foreground colors:
+	Black: \033[30m
+	Red: \033[31m
+	Green: \033[32m
+	Yellow: \033[33m
+	Blue: \033[34m
+	Magenta: \033[35m
+	Cyan: \033[36m
+	White: \033[37m
+
+Background colors:
+	Black: \033[40m
+	Red: \033[41m
+	Green: \033[42m
+	Yellow: \033[43m
+	Blue: \033[44m
+	Magenta: \033[45m
+	Cyan: \033[46m
+	White: \033[47m
+
+*/
