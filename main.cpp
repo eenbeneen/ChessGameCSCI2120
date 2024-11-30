@@ -40,7 +40,44 @@ public:
 	Pawn(int x, int y, bool white) : Piece(x, y, white) {}
 
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
+
 		std::vector<std::vector<int>> possibleMoves;
+
+		//Check if The pawn is white, and if it isn't at the end of the board
+		if (isWhite && yPos > 0) {
+			//Run this if the pawn is white and not at the end
+
+			if (board[yPos - 1][xPos] == ' ') {
+
+				//The spot in front of the pawn is open, so it can move there
+				possibleMoves.push_back(convertToVector(xPos, yPos - 1));
+
+				//If the pawn is at the starting square, it can move 2 spaces if its open
+				if (yPos == 6 && board[yPos - 2][xPos] == ' ') {
+					possibleMoves.push_back(convertToVector(xPos, yPos - 2));
+				}
+
+			}
+
+			//Add en passant and capturing here later
+
+		}
+		else if (!isWhite && yPos < 7) {
+			//Run this if the pawn is black and not at the end
+			//More or less the same code with different numbers
+			if (board[yPos + 1][xPos] == ' ') {
+
+				possibleMoves.push_back(convertToVector(xPos, yPos + 1));
+
+				if (yPos == 1 && board[yPos + 2][xPos] == ' ') {
+					possibleMoves.push_back(convertToVector(xPos, yPos + 2));
+				}
+			}
+		}
+
+		return possibleMoves;
+
+		//Note, promotion belongs in the main function
 
 	}
 };
@@ -279,6 +316,20 @@ int main() {
 		std::cout << queenMoves.at(i).at(0) << ", " << queenMoves.at(i).at(1);
 		std::cout << ")\n";
 		
+	}
+
+	//Testing black pawn at (1, 1)
+	Pawn pawn(1, 2, false);
+
+	std::vector<std::vector<int>> pawnMoves = pawn.getMoves(board);
+	std::cout << "\n PAWNMOVES SIZE: " << pawnMoves.size() << " \n";
+
+	for (int i = 0; i < pawnMoves.size(); i++) {
+
+		std::cout << "(";
+		std::cout << pawnMoves.at(i).at(0) << ", " << pawnMoves.at(i).at(1);
+		std::cout << ")\n";
+
 	}
 
 	
