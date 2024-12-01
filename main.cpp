@@ -207,6 +207,24 @@ public:
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
 
+		//Start a loop to check every space next to the king
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+
+				//If both i and j are 0, the space is the one the king is\
+				standing on and doesn't need to be checked
+				if (i == 0 && j == 0) {
+					continue;
+				}
+
+				//If the space is empty, add it to the possible moves
+				if (board[xPos + i][yPos + j] == ' ') {
+					possibleMoves.push_back(convertToVector(xPos + i, yPos + j));
+				}
+			}
+		}
+
+		return possibleMoves;
 
 	}
 };
@@ -319,7 +337,7 @@ int main() {
 	}
 
 	//Testing black pawn at (1, 1)
-	Pawn pawn(1, 2, false);
+	Pawn pawn(1, 1, false);
 
 	std::vector<std::vector<int>> pawnMoves = pawn.getMoves(board);
 	std::cout << "\n PAWNMOVES SIZE: " << pawnMoves.size() << " \n";
@@ -328,6 +346,20 @@ int main() {
 
 		std::cout << "(";
 		std::cout << pawnMoves.at(i).at(0) << ", " << pawnMoves.at(i).at(1);
+		std::cout << ")\n";
+
+	}
+
+	//Testing king at (3, 3)
+	King king(3, 3, true);
+
+	std::vector<std::vector<int>> kingMoves = king.getMoves(board);
+	std::cout << "\n KINGMOVES SIZE: " << kingMoves.size() << " \n";
+
+	for (int i = 0; i < kingMoves.size(); i++) {
+
+		std::cout << "(";
+		std::cout << kingMoves.at(i).at(0) << ", " << kingMoves.at(i).at(1);
 		std::cout << ")\n";
 
 	}
