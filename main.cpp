@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip> // For std::setw
+#include <string>
 
 #define white_square 0xDB
 #define black_square 0xFF
@@ -27,7 +28,7 @@ public:
 	}
 
 	//Get moves function that currently returns an empty vector of int vectors
-	std::vector<std::vector<int>> getMoves(char board[][8]) {
+	virtual std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
 		return possibleMoves;
 	}
@@ -39,7 +40,7 @@ public:
 
 	Pawn(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 
 		std::vector<std::vector<int>> possibleMoves;
 
@@ -87,7 +88,7 @@ public:
 
 	Rook(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 
 		
 		std::vector<std::vector<int>> possibleMoves;
@@ -135,7 +136,7 @@ public:
 
 	Knight(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		/*
@@ -170,7 +171,7 @@ public:
 	Bishop(int x = 3, int y = 3, bool white = true) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 
 		std::vector<std::vector<int>> possibleMoves;
 
@@ -209,7 +210,7 @@ public:
 	Queen(int x, int y, bool white) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		//Simply use the getMoves function of both the bishop and the rook and combine them
@@ -230,7 +231,7 @@ public:
 	King(int x = 0, int y = 0, bool white = true) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		//Start a loop to check every space next to the king
@@ -317,94 +318,91 @@ int main() {
 
 	};
 
+	bool whiteTurn = true;
+	while (true) {
+		showBoard(board);
+		// Get user input for move and validate input string format
+		std::cout << (whiteTurn ? "White's turn." : "Black's turn.") << " Enter move (ex. E2 E4): ";
+		std::string move;
+		std::getline(std::cin, move);
 
-	showBoard(board);
+		if (move.size() != 5 || move[2] != ' ') {
+			std::cout << "Invalid move input. Please try again!\n";
+			continue;
+		}
 
-	//Testing rook at position (3, 3)
-	Rook rook(3, 3, true);
+		// Parse user input into variables
+		int fromX = move[0] - 'A';			// Column ('E' -> 4)
+		int fromY = 8 - (move[1] - '0');	// Row (2 -> 6)
+		int toX = move[3] - 'A';
+		int toY = 8 - (move[4] - '0');
 
-	std::vector<std::vector<int>> rookMoves = rook.getMoves(board);
-	std::cout << "\n ROOKMOVES SIZE: " << rookMoves.size() << " \n";
+		std::vector<int> from = convertToVector(fromX, fromY);
+		std::vector<int> to = convertToVector(toX, toY);
 
-	for (int i = 0; i < rookMoves.size(); i++) {
-		
-		std::cout << "(";
-		std::cout << rookMoves.at(i).at(0) << ", " << rookMoves.at(i).at(1);
-		std::cout << ")\n";
-		
+		// Make sure user's move is within chess board, otherwise prompt to try again
+		if (fromX < 0 || fromX > 7 || fromY < 0 || fromY > 7 || toX < 0 || toX > 7 || toY < 0 || toY > 7) {
+			std::cout << "Coordinates out of bounds. Please try again!\n";
+			continue;
+		}
+
+		char piece = board[fromY][fromX];
+		// Make sure piece is valid, and white/black depending on turn
+		if (piece == ' ' || (whiteTurn && islower(piece)) || (!whiteTurn && isupper(piece))) {
+			std::cout << "Invalid piece selection. Please try again!\n";
+			continue;
+		}
+
+		// Get piece from coordinates
+		Piece* currentPiece = nullptr;
+
+		switch (toupper(piece)) {
+		case 'P':
+			currentPiece = new Pawn(fromX, fromY, isupper(piece));
+			break;
+		case 'R':
+			currentPiece = new Rook(fromX, fromY, isupper(piece));
+			break;
+		case 'B':
+			currentPiece = new Bishop(fromX, fromY, isupper(piece));
+			break;
+		case 'Q':
+			currentPiece = new Queen(fromX, fromY, isupper(piece));
+			break;
+		case 'K':
+			currentPiece = new King(fromX, fromY, isupper(piece));
+			break;
+		}
+
+		if (!currentPiece) {
+			std::cout << "Piece type invalid. Please try again!\n";
+			continue;
+		}
+
+		// Iterate over possible moves to check user's inputted move
+		std::vector<std::vector<int>> possibleMoves = currentPiece->getMoves(board);
+		bool validMove = false;
+		for (auto move : possibleMoves) {
+			if (move[0] == toX && move[1] == toY) {
+				validMove = true;
+				break;
+			}
+		}
+
+		if (!validMove) {
+			std::cout << "Invalid move. Please try again!\n";
+			delete currentPiece;
+			continue;
+		}
+
+		// Move piece, then alternate turn
+		board[toY][toX] = piece;
+		board[fromY][fromX] = ' ';
+		delete currentPiece;
+
+		whiteTurn = !whiteTurn;
+		std::cout << "\n";
 	}
-
-	//Testing bishop at position (3, 3)
-	Bishop bishop(3, 3, true);
-
-	std::vector<std::vector<int>> bishopMoves = bishop.getMoves(board);
-	std::cout << "\n BISHOPMOVES SIZE: " << bishopMoves.size() << " \n";
-
-	for (int i = 0; i < bishopMoves.size(); i++) {
-
-		std::cout << "(";
-		std::cout << bishopMoves.at(i).at(0) << ", " << bishopMoves.at(i).at(1);
-		std::cout << ")\n";
-
-	}
-
-	//Testing queen at position (3, 3)
-	Queen queen(3, 3, true);
-
-	std::vector<std::vector<int>> queenMoves = queen.getMoves(board);
-	std::cout << "\n QUEENMOVES SIZE: " << queenMoves.size() << " \n";
-
-	for (int i = 0; i < queenMoves.size(); i++) {
-
-		std::cout << "(";
-		std::cout << queenMoves.at(i).at(0) << ", " << queenMoves.at(i).at(1);
-		std::cout << ")\n";
-		
-	}
-
-	//Testing black pawn at (1, 1)
-	Pawn pawn(1, 1, false);
-
-	std::vector<std::vector<int>> pawnMoves = pawn.getMoves(board);
-	std::cout << "\n PAWNMOVES SIZE: " << pawnMoves.size() << " \n";
-
-	for (int i = 0; i < pawnMoves.size(); i++) {
-
-		std::cout << "(";
-		std::cout << pawnMoves.at(i).at(0) << ", " << pawnMoves.at(i).at(1);
-		std::cout << ")\n";
-
-	}
-
-	//Testing king at (3, 3)
-	King king(3, 3, true);
-
-	std::vector<std::vector<int>> kingMoves = king.getMoves(board);
-	std::cout << "\n KINGMOVES SIZE: " << kingMoves.size() << " \n";
-
-	for (int i = 0; i < kingMoves.size(); i++) {
-
-		std::cout << "(";
-		std::cout << kingMoves.at(i).at(0) << ", " << kingMoves.at(i).at(1);
-		std::cout << ")\n";
-
-	}
-
-	//Testing black knight at (0, 1)
-	Knight knight(0, 1, false);
-
-	std::vector<std::vector<int>> knightMoves = knight.getMoves(board);
-	std::cout << "\n KNIGHTMOVES SIZE: " << knightMoves.size() << " \n";
-
-	for (int i = 0; i < knightMoves.size(); i++) {
-
-		std::cout << "(";
-		std::cout << knightMoves.at(i).at(0) << ", " << knightMoves.at(i).at(1);
-		std::cout << ")\n";
-
-	}
-
-	
 
 	return 0;
 }
