@@ -132,8 +132,33 @@ public:
 
 class Knight : public Piece {
 public:
+
+	Knight(int x, int y, bool white) : Piece(x, y, white) {}
+
 	std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
+
+		/*
+		The knight can move in a way such that the movement along
+		the x-axis and the movement along the y-axis is either 2 or
+		1 in the + and - directions. The following arrays store the
+		possible combination of moves in both the x and y axis such
+		that element i of both arrays combine to make a possible move
+		*/
+		int xMoves[] = { -2, -1, 1, 2, -2, -1, 1, 2 };
+		int yMoves[] = { -1, -2, 2, 1, 1, 2, -2, -1 };
+
+		for (int i = 0; i < 8; i++) {
+
+			//If the space is empty add it to the possible moves
+			if (board[xPos + xMoves[i]][yPos + yMoves[i]] == ' ') {
+
+				possibleMoves.push_back(convertToVector(xPos + xMoves[i], yPos + yMoves[i]));
+
+			}
+		}
+
+		return possibleMoves;
 
 	}
 };
@@ -360,6 +385,20 @@ int main() {
 
 		std::cout << "(";
 		std::cout << kingMoves.at(i).at(0) << ", " << kingMoves.at(i).at(1);
+		std::cout << ")\n";
+
+	}
+
+	//Testing black knight at (0, 1)
+	Knight knight(0, 1, false);
+
+	std::vector<std::vector<int>> knightMoves = knight.getMoves(board);
+	std::cout << "\n KNIGHTMOVES SIZE: " << knightMoves.size() << " \n";
+
+	for (int i = 0; i < knightMoves.size(); i++) {
+
+		std::cout << "(";
+		std::cout << knightMoves.at(i).at(0) << ", " << knightMoves.at(i).at(1);
 		std::cout << ")\n";
 
 	}
