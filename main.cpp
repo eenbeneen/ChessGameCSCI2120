@@ -149,6 +149,7 @@ public:
 		int yMoves[] = { -1, -2, 2, 1, 1, 2, -2, -1 };
 
 		for (int i = 0; i < 8; i++) {
+			
 
 			//If the space is empty add it to the possible moves
 			if (board[xPos + xMoves[i]][yPos + yMoves[i]] == ' ') {
