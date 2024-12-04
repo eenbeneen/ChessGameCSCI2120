@@ -12,6 +12,11 @@ std::vector<int> convertToVector(int x, int y) {
 	return vec;
 }
 
+//Function to quickly check if a coordinate pair is in bounds of the board
+bool coordInBounds(int x, int y) {
+	return x < 8 && x >= 0 && y < 8 && y >= 0;
+}
+
 class Piece {
 public:
 	//Position variables that can be 0-7
@@ -60,7 +65,16 @@ public:
 
 			}
 
-			//Add en passant and capturing here later
+			//Check the squares diagonally in front of the pawn
+			for (int i = -1; i <= 1; i += 2) {
+
+				//If coords are in bounds and piece is lowercase (black) it can be captured
+				if (coordInBounds(yPos - 1, xPos + i) && islower(board[yPos - 1][xPos + i])) {
+
+					possibleMoves.push_back(convertToVector(xPos + i, yPos - 1));
+
+				}
+			}
 
 		}
 		else if (!isWhite && yPos < 7) {
@@ -93,33 +107,46 @@ public:
 		
 		std::vector<std::vector<int>> possibleMoves;
 		
-		//This code checks the rook's y (vertical) path
+		//This code checks the rook's x (horizontal) path
 		//The for loop runs twice, once with dir = 1 and once with dir = -1
 		for (int dir = 1; dir >= -1; dir -= 2) {
 			//This for loop checks every space in front of the rook when dir = 1
 			//and every space behind the rook when dir = -1
 			for (int i = xPos + dir; i < 8 && i >= 0; i+=dir) {
+
+				//Break if the end of the board is reached
+				if (!coordInBounds(yPos, i)) {
+					break;
+				}
 				
 				if (board[yPos][i] == ' ') {
 					//If the space is 0, then the rook can move there, add it to the pos. moves
 					possibleMoves.push_back(convertToVector(i, yPos));
 				}
 				else {
-					//If not, break the loop
-					//Add checking for captures later
+					//If not, check if it has a piece of a different color
+					if (isupper(board[yPos][i]) != isWhite) {
+						//The space has a piece of a different color, so it can capture
+						possibleMoves.push_back(convertToVector(i, yPos));
+
+					}
+					//The rook cannot go further, so stop the current path
 					break;
 				}
 
 			}
 		}
 
-		//Same here, but the for loop checks the rooks path along x
+		//Same here, but the for loop checks the rooks path along y
 		for (int dir = 1; dir >= -1; dir -= 2) {
-			for (int i = yPos + dir; i < 8 && i >= 0; i+=dir) {
+			for (int i = yPos + dir; i < 8 - yPos && i >= 0; i+=dir) {
 				if (board[i][xPos] == ' ') {
 					possibleMoves.push_back(convertToVector(xPos, i));
 				}
 				else {
+					if (isupper(board[i][xPos]) != isWhite) {
+						possibleMoves.push_back(convertToVector(xPos, i));
+					}
 					break;
 				}
 
@@ -150,14 +177,21 @@ public:
 		int yMoves[] = { -1, -2, 2, 1, 1, 2, -2, -1 };
 
 		for (int i = 0; i < 8; i++) {
-			
 
-			//If the space is empty add it to the possible moves
-			if (board[yPos + yMoves[i]][xPos + xMoves[i]] == ' ') {
+			//If the space is OOB, continue
+			if (!coordInBounds(xPos + xMoves[i], yPos + yMoves[i])) {
+				continue;
+			}
+			
+			char to = board[yPos + yMoves[i]][xPos + xMoves[i]];
+			//If the space is empty or it has an enemy piece, add it to the possible moves
+			if (to == ' ' || (to != ' ' && isupper(to) != isWhite)) {
 
 				possibleMoves.push_back(convertToVector(xPos + xMoves[i], yPos + yMoves[i]));
 
 			}
+
+			
 		}
 
 		return possibleMoves;
@@ -182,14 +216,28 @@ public:
 				
 				//For each direction, i the number of spaces away from the current position
 				for (int i = 1; i < 8 && i >= 0; i++) {
+
+					//Break if the end of the board is reached
+					if (!coordInBounds(yPos + i * ydir, xPos + i * xdir)) {
+						break;
+					}
+
 					//Check if the space 'i' spaces away in the correct direction is empty
 					if (board[yPos + i*ydir][xPos + i*xdir] == ' ') {
+
 						//The space is empty, therefore add it to possible moves
 						possibleMoves.push_back(convertToVector(xPos + i*xdir, yPos + i*ydir));
 					}
 					else {
-						//The space is not empty, end the current path
-						//Add capture case later
+
+						//The space is not empty, so check if there is an enemy piece
+						if (isupper(board[yPos + i * ydir][xPos + i * xdir]) != isWhite) {
+
+							//If there is an enemy piece, it can be captured
+							possibleMoves.push_back(convertToVector(xPos + i * xdir, yPos + i * ydir));
+						}
+
+						//The bishop cannot go further, so end the current path
 						break;
 					}
 				}
@@ -240,15 +288,21 @@ public:
 		for (int i = -1; i <= 1; i++) {
 			for (int j = -1; j <= 1; j++) {
 
+				//Skip spaces that are OOB
+				if (!coordInBounds(xPos + j, yPos + i)) {
+					continue;
+				}
+
 				//If both i and j are 0, the space is the one the king is\
 				standing on and doesn't need to be checked
 				if (i == 0 && j == 0) {
 					continue;
 				}
 
-				//If the space is empty, add it to the possible moves
-				if (board[yPos + i][xPos + j] == ' ') {
-					possibleMoves.push_back(convertToVector(yPos + i, xPos + j));
+				char to = board[yPos + i][xPos + j];
+				//If the space is empty or has an enemy piece, add it to the possible moves
+				if (to == ' ' || (to != ' ' && isupper(to) != isWhite)) {
+					possibleMoves.push_back(convertToVector(xPos + j, yPos + i));
 				}
 			}
 		}
@@ -343,7 +397,7 @@ int main() {
 		std::vector<int> to = convertToVector(toX, toY);
 
 		// Make sure user's move is within chess board, otherwise prompt to try again
-		if (fromX < 0 || fromX > 7 || fromY < 0 || fromY > 7 || toX < 0 || toX > 7 || toY < 0 || toY > 7) {
+		if (!coordInBounds(fromX, fromY) || !coordInBounds(toX, toY)) {
 			std::cout << "Coordinates out of bounds. Please try again!\n";
 			continue;
 		}
