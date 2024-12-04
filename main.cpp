@@ -100,7 +100,7 @@ public:
 			//and every space behind the rook when dir = -1
 			for (int i = xPos + dir; i < 8 && i >= 0; i+=dir) {
 				
-				if (board[i][yPos] == ' ') {
+				if (board[yPos][i] == ' ') {
 					//If the space is 0, then the rook can move there, add it to the pos. moves
 					possibleMoves.push_back(convertToVector(i, yPos));
 				}
@@ -116,7 +116,7 @@ public:
 		//Same here, but the for loop checks the rooks path along x
 		for (int dir = 1; dir >= -1; dir -= 2) {
 			for (int i = yPos + dir; i < 8 && i >= 0; i+=dir) {
-				if (board[xPos][i] == ' ') {
+				if (board[i][xPos] == ' ') {
 					possibleMoves.push_back(convertToVector(xPos, i));
 				}
 				else {
@@ -153,7 +153,7 @@ public:
 			
 
 			//If the space is empty add it to the possible moves
-			if (board[xPos + xMoves[i]][yPos + yMoves[i]] == ' ') {
+			if (board[yPos + yMoves[i]][xPos + xMoves[i]] == ' ') {
 
 				possibleMoves.push_back(convertToVector(xPos + xMoves[i], yPos + yMoves[i]));
 
@@ -183,7 +183,7 @@ public:
 				//For each direction, i the number of spaces away from the current position
 				for (int i = 1; i < 8 && i >= 0; i++) {
 					//Check if the space 'i' spaces away in the correct direction is empty
-					if (board[xPos + i*xdir][yPos + i*ydir] == ' ') {
+					if (board[yPos + i*ydir][xPos + i*xdir] == ' ') {
 						//The space is empty, therefore add it to possible moves
 						possibleMoves.push_back(convertToVector(xPos + i*xdir, yPos + i*ydir));
 					}
@@ -234,6 +234,8 @@ public:
 	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
+		
+
 		//Start a loop to check every space next to the king
 		for (int i = -1; i <= 1; i++) {
 			for (int j = -1; j <= 1; j++) {
@@ -245,8 +247,8 @@ public:
 				}
 
 				//If the space is empty, add it to the possible moves
-				if (board[xPos + i][yPos + j] == ' ') {
-					possibleMoves.push_back(convertToVector(xPos + i, yPos + j));
+				if (board[yPos + i][xPos + j] == ' ') {
+					possibleMoves.push_back(convertToVector(yPos + i, xPos + j));
 				}
 			}
 		}
@@ -260,7 +262,7 @@ public:
 //This function prints the board to the output window in proper format
 // Function to display the chessboard with alternating black and white squares
 void showBoard(char board[][8]) {
-	const int square_width = 5; // Fixed width for each square (including borders and padding)
+	const int square_width = 4; // Fixed width for each square (including borders and padding)
 
 	for (int i = 0; i < 8; i++) {
 		std::cout << 8 - i << " "; // Row number
@@ -286,7 +288,7 @@ void showBoard(char board[][8]) {
 	std::cout << "   ";
 	for (int i = 0; i < 8; i++) {
 		char c = 'A' + i;
-		std::cout << "  " << c << "  ";
+		std::cout << " " << c << "  ";
 	}
 	std::cout << std::endl;
 }
@@ -371,6 +373,9 @@ int main() {
 			break;
 		case 'K':
 			currentPiece = new King(fromX, fromY, isupper(piece));
+			break;
+		case 'N':
+			currentPiece = new Knight(fromX, fromY, isupper(piece));
 			break;
 		}
 
