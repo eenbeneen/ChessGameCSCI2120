@@ -374,24 +374,52 @@ int main() {
 
 	};
 
+	// Explain notation for users
+	std::cout << "Welcome to Chess! Please note the following information:\nUppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
+
 	bool whiteTurn = true;
 	while (true) {
 		showBoard(board);
 		// Get user input for move and validate input string format
-		std::cout << (whiteTurn ? "White's turn." : "Black's turn.") << " Enter move (ex. E2 E4): ";
-		std::string move;
-		std::getline(std::cin, move);
+		std::cout << (whiteTurn ? "White's turn." : "Black's turn.") << " Enter move (ex. E2 E4), I for info, or D to offer draw: ";
+		std::string input;
+		std::getline(std::cin, input);
 
-		if (move.size() != 5 || move[2] != ' ') {
+		if (input.size() == 1) {
+			if (input[0] == 'I') { // Display information if user wants to see it again
+				std::cout << "Uppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
+				continue;
+			}
+			else if (input[0] == 'D') { // Handle logic for offering a draw
+				while (true) {
+					std::cout << (whiteTurn ? "White" : "Black") << " is offering a draw. Do you accept (Y/N): ";
+					std::getline(std::cin, input);
+					if (input[0] == 'Y') {
+						std::cout << "The game has ended in a tie!";
+						return 0;
+					}
+					else if (input[0] == 'N') {
+						std::cout << (whiteTurn ? "Black" : "White") << " has rejected the draw offer!\n\n";
+						break;
+					}
+					else {
+						std::cout << "Invalid input. Please try again!\n\n";
+						continue;
+					}
+				}
+				continue;
+			}
+		}
+		else if (input.size() != 5 || input[2] != ' ') { // Validate user move input
 			std::cout << "Invalid move input. Please try again!\n";
 			continue;
 		}
 
 		// Parse user input into variables
-		int fromX = move[0] - 'A';			// Column ('E' -> 4)
-		int fromY = 8 - (move[1] - '0');	// Row (2 -> 6)
-		int toX = move[3] - 'A';
-		int toY = 8 - (move[4] - '0');
+		int fromX = input[0] - 'A';			// Column ('E' -> 4)
+		int fromY = 8 - (input[1] - '0');	// Row (2 -> 6)
+		int toX = input[3] - 'A';
+		int toY = 8 - (input[4] - '0');
 
 		std::vector<int> from = convertToVector(fromX, fromY);
 		std::vector<int> to = convertToVector(toX, toY);
@@ -458,9 +486,8 @@ int main() {
 		if (((currentPiece->isWhite && toY == 0) || (!(currentPiece->isWhite) && toY == 7)) && (tolower(piece) == 'p')) {
 			while (true) {
 				std::cout << "Enter piece to be promoted to (Q, R, B, N): ";
-				std::string promotion;
-				std::getline(std::cin, promotion);
-				char selection = promotion[0];
+				std::getline(std::cin, input);
+				char selection = input[0];
 				if (selection == 'Q' || selection == 'R' || selection == 'B' || selection == 'N') {
 					(currentPiece->isWhite) ? (piece = selection) : (piece = tolower(selection));
 					break;
