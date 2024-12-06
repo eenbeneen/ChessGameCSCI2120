@@ -454,6 +454,21 @@ int main() {
 			continue;
 		}
 
+		// Promotion criteria, change the piece character that "to" position gets set to
+		if (((currentPiece->isWhite && toY == 0) || (!(currentPiece->isWhite) && toY == 7)) && (tolower(piece) == 'p')) {
+			while (true) {
+				std::cout << "Enter piece to be promoted to (Q, R, B, N): ";
+				std::string promotion;
+				std::getline(std::cin, promotion);
+				char selection = promotion[0];
+				if (selection == 'Q' || selection == 'R' || selection == 'B' || selection == 'N') {
+					(currentPiece->isWhite) ? (piece = selection) : (piece = tolower(selection));
+					break;
+				}
+				std::cout << "Invalid selection. Please try again!\n";
+			}			
+		}
+
 		// Move piece, then alternate turn
 		board[toY][toX] = piece;
 		board[fromY][fromX] = ' ';
