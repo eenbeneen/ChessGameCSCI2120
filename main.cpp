@@ -10,6 +10,20 @@
 #define white_square 0xDB
 #define black_square 0xFF
 
+// Unicode chess pieces
+#define WHITE_PAWN   L'\u2659'
+#define WHITE_ROOK   L'\u2656'
+#define WHITE_KNIGHT L'\u2658'
+#define WHITE_BISHOP L'\u2657'
+#define WHITE_QUEEN  L'\u2655'
+#define WHITE_KING   L'\u2654'
+#define BLACK_PAWN   L'\u265F'
+#define BLACK_ROOK   L'\u265C'
+#define BLACK_KNIGHT L'\u265E'
+#define BLACK_BISHOP L'\u265D'
+#define BLACK_QUEEN  L'\u265B'
+#define BLACK_KING   L'\u265A'
+
 //Function to easily convert 2 coordinates to a vector
 std::vector<int> convertToVector(int x, int y) {
 	std::vector<int> vec = { x, y };
@@ -28,7 +42,7 @@ public:
 	int yPos;
 	//Boolean thats true if the piece is white, false if black
 	bool isWhite;
-	
+
 	//Set the x position and y position, of the piece and if it's white (t/f)
 	Piece(int x, int y, bool white) {
 		xPos = x;
@@ -37,19 +51,19 @@ public:
 	}
 
 	//Get moves function that currently returns an empty vector of int vectors
-	virtual std::vector<std::vector<int>> getMoves(wchar_t board[][8]) {
+	virtual std::vector<std::vector<int>> getMoves(char board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
 		return possibleMoves;
 	}
 
 };
 
-class Pawn: public Piece {
+class Pawn : public Piece {
 public:
 
 	Pawn(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 
 		std::vector<std::vector<int>> possibleMoves;
 
@@ -106,23 +120,23 @@ public:
 
 	Rook(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 
-		
+
 		std::vector<std::vector<int>> possibleMoves;
-		
+
 		//This code checks the rook's x (horizontal) path
 		//The for loop runs twice, once with dir = 1 and once with dir = -1
 		for (int dir = 1; dir >= -1; dir -= 2) {
 			//This for loop checks every space in front of the rook when dir = 1
 			//and every space behind the rook when dir = -1
-			for (int i = xPos + dir; i < 8 && i >= 0; i+=dir) {
+			for (int i = xPos + dir; i < 8 && i >= 0; i += dir) {
 
 				//Break if the end of the board is reached
 				if (!coordInBounds(yPos, i)) {
 					break;
 				}
-				
+
 				if (board[yPos][i] == ' ') {
 					//If the space is 0, then the rook can move there, add it to the pos. moves
 					possibleMoves.push_back(convertToVector(i, yPos));
@@ -143,7 +157,7 @@ public:
 
 		//Same here, but the for loop checks the rooks path along y
 		for (int dir = 1; dir >= -1; dir -= 2) {
-			for (int i = yPos + dir; i < 8 - yPos && i >= 0; i+=dir) {
+			for (int i = yPos + dir; i < 8 - yPos && i >= 0; i += dir) {
 				if (board[i][xPos] == ' ') {
 					possibleMoves.push_back(convertToVector(xPos, i));
 				}
@@ -158,7 +172,7 @@ public:
 		}
 
 		return possibleMoves;
-		
+
 	}
 };
 
@@ -167,7 +181,7 @@ public:
 
 	Knight(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		/*
@@ -186,7 +200,7 @@ public:
 			if (!coordInBounds(xPos + xMoves[i], yPos + yMoves[i])) {
 				continue;
 			}
-			
+
 			char to = board[yPos + yMoves[i]][xPos + xMoves[i]];
 			//If the space is empty or it has an enemy piece, add it to the possible moves
 			if (to == ' ' || (to != ' ' && isupper(to) != isWhite)) {
@@ -195,7 +209,7 @@ public:
 
 			}
 
-			
+
 		}
 
 		return possibleMoves;
@@ -209,7 +223,7 @@ public:
 	Bishop(int x = 3, int y = 3, bool white = true) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 
 		std::vector<std::vector<int>> possibleMoves;
 
@@ -217,7 +231,7 @@ public:
 		for (int xdir = -1; xdir <= 1; xdir += 2) {
 
 			for (int ydir = -1; ydir <= 1; ydir += 2) {
-				
+
 				//For each direction, i the number of spaces away from the current position
 				for (int i = 1; i < 8 && i >= 0; i++) {
 
@@ -227,10 +241,10 @@ public:
 					}
 
 					//Check if the space 'i' spaces away in the correct direction is empty
-					if (board[yPos + i*ydir][xPos + i*xdir] == ' ') {
+					if (board[yPos + i * ydir][xPos + i * xdir] == ' ') {
 
 						//The space is empty, therefore add it to possible moves
-						possibleMoves.push_back(convertToVector(xPos + i*xdir, yPos + i*ydir));
+						possibleMoves.push_back(convertToVector(xPos + i * xdir, yPos + i * ydir));
 					}
 					else {
 
@@ -247,7 +261,7 @@ public:
 				}
 			}
 
-			
+
 		}
 
 		return possibleMoves;
@@ -262,7 +276,7 @@ public:
 	Queen(int x, int y, bool white) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		//Simply use the getMoves function of both the bishop and the rook and combine them
@@ -283,10 +297,10 @@ public:
 	King(int x = 0, int y = 0, bool white = true) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
+	std::vector<std::vector<int>> getMoves(char board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
-		
+
 
 		//Start a loop to check every space next to the king
 		for (int i = -1; i <= 1; i++) {
@@ -315,98 +329,162 @@ public:
 
 	}
 };
+void showBoard(wchar_t boardDisplay[8][8]) {
+	//std::wcout.imbue(std::locale("en_US.UTF-8"));
 
-
-// Function to display the chessboard with alternating black and white squares
-void showBoard(wchar_t board[8][8]) {
-	// Row labels and board rendering
+	const int squareWidth = 3;
 	for (int i = 0; i < 8; i++) {
-		std::wcout << 8 - i << L" "; // Row numbers
+		std::wcout << 8 - i << L" "; // Row label
 		for (int j = 0; j < 8; j++) {
-			// Alternate black and white squares
 			if ((i + j) % 2 == 0) {
-				// White square
-				std::wcout << L"\033[47m\033[30m " << board[i][j] << L" \033[0m";
+				std::wcout << L"\033[40m "; // White square, black text
+				std::wcout << std::setw(squareWidth - 2) << boardDisplay[i][j] << L" ";
+				std::wcout << L"\033[0m";
 			}
 			else {
-				// Black square
-				std::wcout << L"\033[40m\033[37m " << board[i][j] << L" \033[0m";;
+				std::wcout << L"\033[46m "; // Black square, white text
+				std::wcout << std::setw(squareWidth - 2) << boardDisplay[i][j] << L" ";
+				std::wcout << L"\033[0m";
 			}
 		}
-		std::wcout << std::endl;
+		std::wcout << L" " << 8 - i << L"\n"; // Row label on the right
 	}
 
 	// Column labels
-	std::wcout << L"   a  b  c  d  e  f  g  h" << std::endl;
+	std::wcout << L"  ";
+	for (int j = 0; j < 8; j++) {
+		std::wcout << L" " << wchar_t('A' + j) << L" ";
+	}
+	std::wcout << std::endl;
 }
+/*
+//This function prints the board to the output window in proper format
+// Function to display the chessboard with alternating black and white squares
+void showBoard(char board[][8]) {
+	const int square_width = 4; // Fixed width for each square (including borders and padding)
 
-
-// Function to initialize the chessboard with Unicode chess symbols
-void initializeBoard(wchar_t board[8][8]) {
-	// White pieces
-	board[0][0] = board[0][7] = L'\u2656'; // Rooks
-	board[0][1] = board[0][6] = L'\u2658'; // Knights
-	board[0][2] = board[0][5] = L'\u2657'; // Bishops
-	board[0][3] = L'\u2655'; // Queen
-	board[0][4] = L'\u2654'; // King
-	for (int i = 0; i < 8; ++i) {
-		board[1][i] = L'\u2659'; // Pawns
+	for (int i = 0; i < 8; i++) {
+		std::cout << 8 - i << " "; // Row number
+		for (int j = 0; j < 8; j++) {
+			// Determine the square type (alternating black and white squares)
+			if ((i + j) % 2 == 0) {
+				// White square with black text
+				std::cout << "\033[47m\033[30m "; // White background, black text using ANSI escape
+				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
+				std::cout << " \033[0m"; // Reset colors
+			}
+			else {
+				// Black square with white text
+				std::cout << "\033[40m\033[37m "; // Black background, white text using ANSI escape
+				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
+				std::cout << " \033[0m"; // Reset colors
+			}
+		}
+		std::cout << std::endl;
 	}
 
-	// Black pieces
-	board[7][0] = board[7][7] = L'\u265C'; // Rooks
-	board[7][1] = board[7][6] = L'\u265E'; // Knights
-	board[7][2] = board[7][5] = L'\u265D'; // Bishops
-	board[7][3] = L'\u265B'; // Queen
-	board[7][4] = L'\u265A'; // King
-	for (int i = 0; i < 8; ++i) {
-		board[6][i] = L'\u265F'; // Pawns
+	// Display column labels
+	std::cout << "   ";
+	for (int i = 0; i < 8; i++) {
+		char c = 'A' + i;
+		std::cout << " " << c << "  ";
 	}
-
-	// Empty squares
-	for (int i = 2; i < 6; ++i) {
-		for (int j = 0; j < 8; ++j) {
-			board[i][j] = L' '; // Empty squares
+	std::cout << std::endl;
+}
+*/
+void convertBoard(char board[8][8], wchar_t boardDisplay[8][8]) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			switch (board[i][j]) {
+			case 'p': boardDisplay[i][j] = BLACK_PAWN; break;
+			case 'r': boardDisplay[i][j] = BLACK_ROOK; break;
+			case 'n': boardDisplay[i][j] = BLACK_KNIGHT; break;
+			case 'b': boardDisplay[i][j] = BLACK_BISHOP; break;
+			case 'q': boardDisplay[i][j] = BLACK_QUEEN; break;
+			case 'k': boardDisplay[i][j] = BLACK_KING; break;
+			case 'P': boardDisplay[i][j] = WHITE_PAWN; break;
+			case 'R': boardDisplay[i][j] = WHITE_ROOK; break;
+			case 'N': boardDisplay[i][j] = WHITE_KNIGHT; break;
+			case 'B': boardDisplay[i][j] = WHITE_BISHOP; break;
+			case 'Q': boardDisplay[i][j] = WHITE_QUEEN; break;
+			case 'K': boardDisplay[i][j] = WHITE_KING; break;
+			default:  boardDisplay[i][j] = L' '; break;
+			}
 		}
 	}
+	/*for (int i = 0; i < 8; i++) {
+		if (i % 2 == 0) {
+			boardDisplay[0][i] = BLACK_KNIGHT;
+		}
+		else {
+			boardDisplay[0][i] = WHITE_KNIGHT;
+		}
+	}*/
 }
 int main() {
+
+	//The starting chess board
+	/*
+		UPPERCASE: WHITE
+		lowercase: black
+		P = pawn
+		R = rook
+		N = knight
+		B = bishop
+		Q = queen
+		K = king
+
+		Board goes from top left (0, 0) to bottom right (7, 7)
+	*/
 	// Enable Unicode output for Windows (required for wide characters)
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
-	wchar_t board[8][8];
-	initializeBoard(board);
+	char board[8][8] = {
+
+		{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+		{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
+
+	};
+
+	wchar_t boardDisplay[8][8];
 
 	// Explain notation for users
-	std::cout << "Welcome to Chess! Please note the following information:\nUppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
+	std::wcout << L"Welcome to Chess! Please note the following information:\nUppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
 
 	bool whiteTurn = true;
 	while (true) {
-		showBoard(board);
+		convertBoard(board, boardDisplay);
+		showBoard(boardDisplay);
 		// Get user input for move and validate input string format
-		std::cout << (whiteTurn ? "White's turn." : "Black's turn.") << " Enter move (ex. E2 E4), I for info, or D to offer draw: ";
+		std::wcout << (whiteTurn ? L"White's turn." : L"Black's turn.") << L" Enter move (ex. E2 E4), I for info, or D to offer draw: ";
 		std::string input;
 		std::getline(std::cin, input);
 
 		if (input.size() == 1) {
 			if (input[0] == 'I') { // Display information if user wants to see it again
-				std::cout << "Uppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
+				std::wcout << L"Uppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
 				continue;
 			}
 			else if (input[0] == 'D') { // Handle logic for offering a draw
 				while (true) {
-					std::cout << (whiteTurn ? "White" : "Black") << " is offering a draw. Do you accept (Y/N): ";
+					std::wcout << (whiteTurn ? L"White" : L"Black") << L" is offering a draw. Do you accept (Y/N): ";
 					std::getline(std::cin, input);
 					if (input[0] == 'Y') {
-						std::cout << "The game has ended in a tie!";
+						std::wcout << L"The game has ended in a tie!";
 						return 0;
 					}
 					else if (input[0] == 'N') {
-						std::cout << (whiteTurn ? "Black" : "White") << " has rejected the draw offer!\n\n";
+						std::wcout << (whiteTurn ? L"Black" : L"White") << L" has rejected the draw offer!\n\n";
 						break;
 					}
 					else {
-						std::cout << "Invalid input. Please try again!\n\n";
+						std::wcout << L"Invalid input. Please try again!\n\n";
 						continue;
 					}
 				}
@@ -414,67 +492,58 @@ int main() {
 			}
 		}
 		else if (input.size() != 5 || input[2] != ' ') { // Validate user move input
-			std::cout << "Invalid move input. Please try again!\n";
+			std::wcout << L"Invalid move input. Please try again!\n";
 			continue;
 		}
 
 		// Parse user input into variables
-		int fromX = input[0] - 'A';			// Column ('E' -> 4)
-		int fromY = 8 - (input[1] - '0');	// Row (2 -> 6)
-		int toX = input[3] - 'A';
-		int toY = 8 - (input[4] - '0');
+		int fromX = input[0] - L'A';			// Column ('E' -> 4)
+		int fromY = 8 - (input[1] - L'0');	// Row (2 -> 6)
+		int toX = input[3] - L'A';
+		int toY = 8 - (input[4] - L'0');
 
 		std::vector<int> from = convertToVector(fromX, fromY);
 		std::vector<int> to = convertToVector(toX, toY);
 
 		// Make sure user's move is within chess board, otherwise prompt to try again
 		if (!coordInBounds(fromX, fromY) || !coordInBounds(toX, toY)) {
-			std::cout << "Coordinates out of bounds. Please try again!\n";
+			std::wcout << L"Coordinates out of bounds. Please try again!\n";
 			continue;
 		}
 
 		char piece = board[fromY][fromX];
 		// Make sure piece is valid, and white/black depending on turn
 		if (piece == ' ' || (whiteTurn && islower(piece)) || (!whiteTurn && isupper(piece))) {
-			std::cout << "Invalid piece selection. Please try again!\n";
+			std::wcout << L"Invalid piece selection. Please try again!\n";
 			continue;
 		}
 
 		// Get piece from coordinates
 		Piece* currentPiece = nullptr;
+
 		switch (toupper(piece)) {
-		case L'\u265F':  // White Pawn
-		case L'\u2659':  // Black Pawn
+		case 'P':
 			currentPiece = new Pawn(fromX, fromY, isupper(piece));
 			break;
-
-		case L'\u265C':  // White Rook
-		case L'\u2656':  // Black Rook
+		case 'R':
 			currentPiece = new Rook(fromX, fromY, isupper(piece));
 			break;
-
-		case L'\u2657':  // White Bishop
-		case L'\u265D':  // Black Bishop
+		case 'B':
 			currentPiece = new Bishop(fromX, fromY, isupper(piece));
 			break;
-
-		case L'\u2655':  // White Queen
-		case L'\u265B':  // Black Queen
+		case 'Q':
 			currentPiece = new Queen(fromX, fromY, isupper(piece));
 			break;
-
-		case L'\u265A':  // White King
-		case L'\u265A':  // Black King (Fix: only one case for King)
+		case 'K':
 			currentPiece = new King(fromX, fromY, isupper(piece));
 			break;
-
-		case L'\u2658':  // White Knight
-		case L'\u265E':  // Black Knight
+		case 'N':
 			currentPiece = new Knight(fromX, fromY, isupper(piece));
 			break;
 		}
+
 		if (!currentPiece) {
-			std::cout << "Piece type invalid. Please try again!\n";
+			std::wcout << L"Piece type invalid. Please try again!\n";
 			continue;
 		}
 
@@ -489,7 +558,7 @@ int main() {
 		}
 
 		if (!validMove) {
-			std::cout << "Invalid move. Please try again!\n";
+			std::wcout << L"Invalid move. Please try again!\n";
 			delete currentPiece;
 			continue;
 		}
@@ -497,14 +566,14 @@ int main() {
 		// Promotion criteria, change the piece character that "to" position gets set to
 		if (((currentPiece->isWhite && toY == 0) || (!(currentPiece->isWhite) && toY == 7)) && (tolower(piece) == 'p')) {
 			while (true) {
-				std::cout << "Enter piece to be promoted to (Q, R, B, N): ";
+				std::wcout << L"Enter piece to be promoted to (Q, R, B, N): ";
 				std::getline(std::cin, input);
 				char selection = input[0];
 				if (selection == 'Q' || selection == 'R' || selection == 'B' || selection == 'N') {
 					(currentPiece->isWhite) ? (piece = selection) : (piece = tolower(selection));
 					break;
 				}
-				std::cout << "Invalid selection. Please try again!\n";
+				std::wcout << L"Invalid selection. Please try again!\n";
 			}
 		}
 
@@ -514,15 +583,12 @@ int main() {
 		delete currentPiece;
 
 		whiteTurn = !whiteTurn;
-		std::cout << "\n";
+		std::wcout << L"\n";
+
 	}
 
-	return 0
+	return 0;
 }
-
-
-
-
 
 /* ANSI wscape
 Foreground colors:
@@ -546,3 +612,4 @@ Background colors:
 	White: \033[47m
 
 */
+
