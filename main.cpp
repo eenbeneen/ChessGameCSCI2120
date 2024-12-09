@@ -2,6 +2,10 @@
 #include <vector>
 #include <iomanip> // For std::setw
 #include <string>
+#include <wchar.h>
+#include <locale.h>
+#include <fcntl.h>
+#include <io.h>
 
 #define white_square 0xDB
 #define black_square 0xFF
@@ -33,7 +37,7 @@ public:
 	}
 
 	//Get moves function that currently returns an empty vector of int vectors
-	virtual std::vector<std::vector<int>> getMoves(char board[][8]) {
+	virtual std::vector<std::vector<int>> getMoves(wchar_t board[][8]) {
 		std::vector<std::vector<int>> possibleMoves;
 		return possibleMoves;
 	}
@@ -45,7 +49,7 @@ public:
 
 	Pawn(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) override {
+	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
 
 		std::vector<std::vector<int>> possibleMoves;
 
@@ -102,7 +106,7 @@ public:
 
 	Rook(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) override {
+	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
 
 		
 		std::vector<std::vector<int>> possibleMoves;
@@ -163,7 +167,7 @@ public:
 
 	Knight(int x, int y, bool white) : Piece(x, y, white) {}
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) override {
+	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		/*
@@ -205,7 +209,7 @@ public:
 	Bishop(int x = 3, int y = 3, bool white = true) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) override {
+	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
 
 		std::vector<std::vector<int>> possibleMoves;
 
@@ -258,7 +262,7 @@ public:
 	Queen(int x, int y, bool white) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) override {
+	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		//Simply use the getMoves function of both the bishop and the rook and combine them
@@ -279,7 +283,7 @@ public:
 	King(int x = 0, int y = 0, bool white = true) : Piece(x, y, white) {}
 
 
-	std::vector<std::vector<int>> getMoves(char board[][8]) override {
+	std::vector<std::vector<int>> getMoves(wchar_t board[][8]) override {
 		std::vector<std::vector<int>> possibleMoves;
 
 		
@@ -312,67 +316,66 @@ public:
 	}
 };
 
-	
-//This function prints the board to the output window in proper format
-// Function to display the chessboard with alternating black and white squares
-void showBoard(char board[][8]) {
-	const int square_width = 4; // Fixed width for each square (including borders and padding)
 
+// Function to display the chessboard with alternating black and white squares
+void showBoard(wchar_t board[8][8]) {
+	// Row labels and board rendering
 	for (int i = 0; i < 8; i++) {
-		std::cout << 8 - i << " "; // Row number
+		std::wcout << 8 - i << L" "; // Row numbers
 		for (int j = 0; j < 8; j++) {
-			// Determine the square type (alternating black and white squares)
+			// Alternate black and white squares
 			if ((i + j) % 2 == 0) {
-				// White square with black text
-				std::cout << "\033[47m\033[30m "; // White background, black text using ANSI escape
-				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
-				std::cout << " \033[0m"; // Reset colors
+				// White square
+				std::wcout << L"\033[47m\033[30m " << board[i][j] << L" \033[0m";
 			}
 			else {
-				// Black square with white text
-				std::cout << "\033[40m\033[37m "; // Black background, white text using ANSI escape
-				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
-				std::cout << " \033[0m"; // Reset colors
+				// Black square
+				std::wcout << L"\033[40m\033[37m " << board[i][j] << L" \033[0m";;
 			}
 		}
-		std::cout << std::endl;
+		std::wcout << std::endl;
 	}
 
-	// Display column labels
-	std::cout << "   ";
-	for (int i = 0; i < 8; i++) {
-		char c = 'A' + i;
-		std::cout << " " << c << "  ";
+	// Column labels
+	std::wcout << L"   a  b  c  d  e  f  g  h" << std::endl;
+}
+
+
+// Function to initialize the chessboard with Unicode chess symbols
+void initializeBoard(wchar_t board[8][8]) {
+	// White pieces
+	board[0][0] = board[0][7] = L'\u2656'; // Rooks
+	board[0][1] = board[0][6] = L'\u2658'; // Knights
+	board[0][2] = board[0][5] = L'\u2657'; // Bishops
+	board[0][3] = L'\u2655'; // Queen
+	board[0][4] = L'\u2654'; // King
+	for (int i = 0; i < 8; ++i) {
+		board[1][i] = L'\u2659'; // Pawns
 	}
-	std::cout << std::endl;
+
+	// Black pieces
+	board[7][0] = board[7][7] = L'\u265C'; // Rooks
+	board[7][1] = board[7][6] = L'\u265E'; // Knights
+	board[7][2] = board[7][5] = L'\u265D'; // Bishops
+	board[7][3] = L'\u265B'; // Queen
+	board[7][4] = L'\u265A'; // King
+	for (int i = 0; i < 8; ++i) {
+		board[6][i] = L'\u265F'; // Pawns
+	}
+
+	// Empty squares
+	for (int i = 2; i < 6; ++i) {
+		for (int j = 0; j < 8; ++j) {
+			board[i][j] = L' '; // Empty squares
+		}
+	}
 }
 int main() {
+	// Enable Unicode output for Windows (required for wide characters)
+	_setmode(_fileno(stdout), _O_U16TEXT);
 
-	//The starting chess board
-	/*
-		UPPERCASE: WHITE
-		lowercase: black
-		P = pawn
-		R = rook
-		N = knight	
-		B = bishop
-		Q = queen
-		K = king
-
-		Board goes from top left (0, 0) to bottom right (7, 7)
-	*/
-	char board[8][8] = {
-
-		{'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
-		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-		{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'},
-
-	};
+	wchar_t board[8][8];
+	initializeBoard(board);
 
 	// Explain notation for users
 	std::cout << "Welcome to Chess! Please note the following information:\nUppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
@@ -439,28 +442,37 @@ int main() {
 
 		// Get piece from coordinates
 		Piece* currentPiece = nullptr;
-
 		switch (toupper(piece)) {
-		case 'P':
+		case L'\u265F':  // White Pawn
+		case L'\u2659':  // Black Pawn
 			currentPiece = new Pawn(fromX, fromY, isupper(piece));
 			break;
-		case 'R':
+
+		case L'\u265C':  // White Rook
+		case L'\u2656':  // Black Rook
 			currentPiece = new Rook(fromX, fromY, isupper(piece));
 			break;
-		case 'B':
+
+		case L'\u2657':  // White Bishop
+		case L'\u265D':  // Black Bishop
 			currentPiece = new Bishop(fromX, fromY, isupper(piece));
 			break;
-		case 'Q':
+
+		case L'\u2655':  // White Queen
+		case L'\u265B':  // Black Queen
 			currentPiece = new Queen(fromX, fromY, isupper(piece));
 			break;
-		case 'K':
+
+		case L'\u265A':  // White King
+		case L'\u265A':  // Black King (Fix: only one case for King)
 			currentPiece = new King(fromX, fromY, isupper(piece));
 			break;
-		case 'N':
+
+		case L'\u2658':  // White Knight
+		case L'\u265E':  // Black Knight
 			currentPiece = new Knight(fromX, fromY, isupper(piece));
 			break;
 		}
-
 		if (!currentPiece) {
 			std::cout << "Piece type invalid. Please try again!\n";
 			continue;
@@ -493,7 +505,7 @@ int main() {
 					break;
 				}
 				std::cout << "Invalid selection. Please try again!\n";
-			}			
+			}
 		}
 
 		// Move piece, then alternate turn
@@ -505,8 +517,12 @@ int main() {
 		std::cout << "\n";
 	}
 
-	return 0;
+	return 0
 }
+
+
+
+
 
 /* ANSI wscape
 Foreground colors:
