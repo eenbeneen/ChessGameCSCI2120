@@ -332,17 +332,17 @@ public:
 void showBoard(wchar_t boardDisplay[8][8]) {
 	//std::wcout.imbue(std::locale("en_US.UTF-8"));
 
-	const int squareWidth = 4;
+	const int squareWidth = 3 ;
 	for (int i = 0; i < 8; i++) {
 		std::wcout << 8 - i << L" "; // Row label
 		for (int j = 0; j < 8; j++) {
 			if ((i + j) % 2 == 0) {
-				std::wcout << L"\033[47m\033[30m "; // White square, black text
+				std::wcout << L"\033[40m "; // White square, black text
 				std::wcout << std::setw(squareWidth - 2) << boardDisplay[i][j] << L" ";
 				std::wcout << L"\033[0m";
 			}
 			else {
-				std::wcout << L"\033[40m\033[37m "; // Black square, white text
+				std::wcout << L"\033[46m "; // Black square, white text
 				std::wcout << std::setw(squareWidth - 2) << boardDisplay[i][j] << L" ";
 				std::wcout << L"\033[0m";
 			}
@@ -351,9 +351,9 @@ void showBoard(wchar_t boardDisplay[8][8]) {
 	}
 
 	// Column labels
-	std::wcout << L"   ";
+	std::wcout << L"  ";
 	for (int j = 0; j < 8; j++) {
-		std::wcout << L" " << wchar_t('A' + j) << L"  ";
+		std::wcout << L" " << wchar_t('A' + j) << L" ";
 	}
 	std::wcout << std::endl;
 }
@@ -412,6 +412,14 @@ void convertBoard(char board[8][8], wchar_t boardDisplay[8][8]) {
 			}
 		}
 	}
+	/*for (int i = 0; i < 8; i++) {
+		if (i % 2 == 0) {
+			boardDisplay[0][i] = BLACK_KNIGHT;
+		}
+		else {
+			boardDisplay[0][i] = WHITE_KNIGHT;
+		}
+	}*/
 }
 int main() {
 
@@ -489,10 +497,10 @@ int main() {
 		}
 
 		// Parse user input into variables
-		int fromX = input[0] - 'A';			// Column ('E' -> 4)
-		int fromY = 8 - (input[1] - '0');	// Row (2 -> 6)
-		int toX = input[3] - 'A';
-		int toY = 8 - (input[4] - '0');
+		int fromX = input[0] - L'A';			// Column ('E' -> 4)
+		int fromY = 8 - (input[1] - L'0');	// Row (2 -> 6)
+		int toX = input[3] - L'A';
+		int toY = 8 - (input[4] - L'0');
 
 		std::vector<int> from = convertToVector(fromX, fromY);
 		std::vector<int> to = convertToVector(toX, toY);
@@ -575,7 +583,7 @@ int main() {
 		delete currentPiece;
 
 		whiteTurn = !whiteTurn;
-		std::cout << "\n";
+		std::wcout << L"\n";
 		
 	}
 
