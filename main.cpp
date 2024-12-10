@@ -11,18 +11,18 @@
 #define black_square 0xFF
 
 // Unicode chess pieces
-#define WHITE_PAWN   L'\u2659'
-#define WHITE_ROOK   L'\u2656'
-#define WHITE_KNIGHT L'\u2658'
-#define WHITE_BISHOP L'\u2657'
-#define WHITE_QUEEN  L'\u2655'
-#define WHITE_KING   L'\u2654'
-#define BLACK_PAWN   L'\u265F'
-#define BLACK_ROOK   L'\u265C'
-#define BLACK_KNIGHT L'\u265E'
-#define BLACK_BISHOP L'\u265D'
-#define BLACK_QUEEN  L'\u265B'
-#define BLACK_KING   L'\u265A'
+#define BLACK_PAWN   L'\u2659'
+#define BLACK_ROOK   L'\u2656'
+#define BLACK_KNIGHT L'\u2658'
+#define BLACK_BISHOP L'\u2657'
+#define BLACK_QUEEN  L'\u2655'
+#define BLACK_KING   L'\u2654'
+#define WHITE_PAWN   L'\u265F'
+#define WHITE_ROOK   L'\u265C'
+#define WHITE_KNIGHT L'\u265E'
+#define WHITE_BISHOP L'\u265D'
+#define WHITE_QUEEN  L'\u265B'
+#define WHITE_KING   L'\u265A'
 
 //Function to easily convert 2 coordinates to a vector
 std::vector<int> convertToVector(int x, int y) {
@@ -711,11 +711,62 @@ int main() {
 			}
 		}
 
-		// Move piece, then alternate turn
+		
+
+		// Move piece, but store the char on the space it moves to for later
+		char prevPiece = board[toY][toX];
 		board[toY][toX] = piece;
 		board[fromY][fromX] = ' ';
+
+		//Check if the friendly king is in check
+		//Find the king
+		int kingX, kingY;
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				char c = board[i][j];
+				if (isupper(c) == whiteTurn && toupper(c) == 'K') {
+					kingX = j;
+					kingY = i;
+				}
+			}
+		}
+		King* friendlyKing = new King(kingX, kingY, whiteTurn);
+
+		//If the friendly king is in check now, reverse the move and show a message
+		if (friendlyKing->inCheckAt(board, kingX, kingY)) {
+			board[toY][toX] = prevPiece;
+			board[fromY][fromX] = piece;
+			std::wcout << L"Move puts king in check. Please try again!\n";
+			delete currentPiece;
+			continue;
+		}
+
+
 		delete currentPiece;
 
+		//Check for check/checkmate
+		//Find the opponent king
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				char c = board[i][j];
+				if (isupper(c) == !whiteTurn && toupper(c) == 'K') {
+					kingX = j;
+					kingY = i;
+				}
+			}
+		}
+		King* opponentKing = new King(kingX, kingY, !whiteTurn);
+
+		if (opponentKing->inCheckAt(board, kingX, kingY)) {
+			std::wcout << (whiteTurn ? L"Black" : L"White") << L"'s king is in check!\n";
+			if (opponentKing->inCheckmate(board)) {
+				std::wcout << (whiteTurn ? L"Black" : L"White") << L"'s king has been checkmated!\n";
+				std::wcout << (!whiteTurn ? L"Black" : L"White") << " wins the game.\n";
+				break;
+			}
+		}
+		
+		//Switch turns and repeat
 		whiteTurn = !whiteTurn;
 		std::wcout << L"\n";
 
