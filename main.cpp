@@ -328,6 +328,140 @@ public:
 		return possibleMoves;
 
 	}
+
+	bool inCheckAt(char board[][8], int x, int y) {
+
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				//Check every space that is not empty, the opposite color, and not the king
+				//If the space is where the king is, continue
+				if (i == y && j == x) {
+					continue;
+				}
+				if (board[i][j] != ' ' && isupper(board[i][j]) != isWhite) {
+					Piece* currentPiece = nullptr;
+					//Assign the piece to the correct type
+					switch (toupper(board[i][j])) {
+					case 'P':
+						currentPiece = new Pawn(j, i, !isWhite);
+						break;
+					case 'Q':
+						currentPiece = new Queen(j, i, !isWhite);
+						break;
+					case 'K':
+						currentPiece = new King(j, i, !isWhite);
+						break;
+					case 'B':
+						currentPiece = new Bishop(j, i, !isWhite);
+						break;
+					case 'R':
+						currentPiece = new Rook(j, i, !isWhite);
+						break;
+					case 'N':
+						currentPiece = new Knight(j, i, !isWhite);
+						break;
+					}
+
+					//Check the possible moves of the piece
+					std::vector<std::vector<int>> possibleMoves = currentPiece->getMoves(board);
+					for (auto move : possibleMoves) {
+						//If the piece can move to the king's space, the king is in check
+						if (move[0] == x && move[1] == y) {
+							return true;
+						}
+					}
+				}
+
+			}
+		}
+
+		//No pieces can capture the king, so it is not in check
+		return false;
+	}
+
+	bool inCheckmate(char board[][8]) {
+		//If the king is not in check, it cannot be checkmate
+		if (!inCheckAt(board, xPos, yPos)) {
+			return false;
+		}
+
+		//make a 'test board' that can be modified
+		char testBoard[8][8];
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				testBoard[i][j] = board[i][j];
+			}
+		}
+
+		//If the king can move somewhere where its not in check, it cannot be checkmate
+		std::vector<std::vector<int>> myPossibleMoves = getMoves(board);
+		for (auto move : myPossibleMoves) {
+			//Make the move on the testboard and test if the king is still in check
+			//Make a temp character storing the empty char or the piece on the space the king moves to
+			char temp = testBoard[move[1]][move[0]];
+			testBoard[move[1]][move[0]] = testBoard[yPos][xPos];
+			testBoard[yPos][xPos] = ' ';
+			//If the king is not in check it cannot be checkmate
+			if (!inCheckAt(testBoard, move[0], move[1])) {
+				return false;
+			}
+			//Reset the testboard using the temp char
+			testBoard[yPos][xPos] = testBoard[move[1]][move[0]];
+			testBoard[move[1]][move[0]] = temp;
+		}
+
+		//If any piece can move somewhere where the king stops being in check, it cannot be checkmate
+
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (board[i][j] != ' ' && isupper(board[i][j]) == isWhite && !(i == yPos && j == xPos)) {
+					Piece* currentPiece = nullptr;
+					switch (toupper(board[i][j])) {
+					case 'P':
+						currentPiece = new Pawn(j, i, isWhite);
+						break;
+					case 'Q':
+						currentPiece = new Queen(j, i, isWhite);
+						break;
+					case 'K':
+						currentPiece = new King(j, i, isWhite);
+						break;
+					case 'B':
+						currentPiece = new Bishop(j, i, isWhite);
+						break;
+					case 'R':
+						currentPiece = new Rook(j, i, isWhite);
+						break;
+					case 'N':
+						currentPiece = new Knight(j, i, isWhite);
+						break;
+					}
+
+
+					//Check the possible moves of the piece
+					std::vector<std::vector<int>> possibleMoves = currentPiece->getMoves(board);
+					for (auto move : possibleMoves) {
+						//Make the move on the test board and check if the king is still in check
+						//Make a temp character storing the empty char or the piece on the space the king moves to
+						char temp = testBoard[move[1]][move[0]];
+						testBoard[move[1]][move[0]] = testBoard[i][j];
+						testBoard[i][j] = ' ';
+						if (!inCheckAt(testBoard, xPos, yPos)) {
+							//If a move results in the king no longer being in check, it cannot be checkmate
+							return false;
+						}
+						//Reset the testboard using the temp char
+						testBoard[i][j] = testBoard[move[1]][move[0]];
+						testBoard[move[1]][move[0]] = temp;
+					}
+				}
+
+			}
+		}
+
+		//If none of the above tests pass, it is checkmate
+		return true;
+	}
 };
 void showBoard(wchar_t boardDisplay[8][8]) {
 	//std::wcout.imbue(std::locale("en_US.UTF-8"));
