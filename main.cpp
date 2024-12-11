@@ -589,7 +589,7 @@ int main() {
 	wchar_t boardDisplay[8][8];
 
 	// Explain notation for users
-	std::wcout << L"Welcome to Chess! Please note the following information:\nUppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
+	std::wcout << L"Welcome to Chess! Please note the following information:\nUpper unfilled pieces are black, and lower filled pieces are white.\n\n";
 
 	bool whiteTurn = true;
 	while (true) {
@@ -602,7 +602,7 @@ int main() {
 
 		if (input.size() == 1) {
 			if (input[0] == 'I') { // Display information if user wants to see it again
-				std::wcout << L"Uppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
+				std::wcout << L"The pieces are as follows: Unfilled pieces are black, and unfilled pieces are black.\n\n";
 				continue;
 			}
 			else if (input[0] == 'D') { // Handle logic for offering a draw
