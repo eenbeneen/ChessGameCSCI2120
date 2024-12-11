@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <iomanip> // For std::setw
 #include <string>
@@ -17,12 +18,12 @@
 #define BLACK_BISHOP L'\u2657'
 #define BLACK_QUEEN  L'\u2655'
 #define BLACK_KING   L'\u2654'
-#define WHITE_PAWN   L'\u265F'
-#define WHITE_ROOK   L'\u265C'
-#define WHITE_KNIGHT L'\u265E'
-#define WHITE_BISHOP L'\u265D'
-#define WHITE_QUEEN  L'\u265B'
-#define WHITE_KING   L'\u265A'
+#define WHITE_PAWN   L'\u2659'
+#define WHITE_ROOK   L'\u2656'
+#define WHITE_KNIGHT L'\u2658'
+#define WHITE_BISHOP L'\u2657'
+#define WHITE_QUEEN  L'\u2655'
+#define WHITE_KING   L'\u2654'
 
 //Function to easily convert 2 coordinates to a vector
 std::vector<int> convertToVector(int x, int y) {
@@ -463,22 +464,42 @@ public:
 		return true;
 	}
 };
-void showBoard(wchar_t boardDisplay[8][8]) {
-	//std::wcout.imbue(std::locale("en_US.UTF-8"));
+
+wchar_t convertChar(char ch) {
+	switch (ch) {
+	case 'p': return BLACK_PAWN; break;
+	case 'r': return BLACK_ROOK; break;
+	case 'n': return BLACK_KNIGHT; break;
+	case 'b': return BLACK_BISHOP; break;
+	case 'q': return BLACK_QUEEN; break;
+	case 'k': return BLACK_KING; break;
+	case 'P': return WHITE_PAWN; break;
+	case 'R': return WHITE_ROOK; break;
+	case 'N': return WHITE_KNIGHT; break;
+	case 'B': return WHITE_BISHOP; break;
+	case 'Q': return WHITE_QUEEN; break;
+	case 'K': return WHITE_KING; break;
+	default:  return L' '; break;
+	}
+}
+
+void showBoard(char board[][8]) {
 
 	const int squareWidth = 3;
 	for (int i = 0; i < 8; i++) {
-		std::wcout << 8 - i << L" "; // Row label
+		std::wcout << 8 - i << L" "; // Row label on the left
 		for (int j = 0; j < 8; j++) {
 			if ((i + j) % 2 == 0) {
-				std::wcout << L"\033[40m "; // White square, black text
-				std::wcout << std::setw(squareWidth - 2) << boardDisplay[i][j] << L" ";
-				std::wcout << L"\033[0m";
+				std::wcout << L"\033[44m "; // White square
+				(isupper(board[i][j])) ? std::wcout << L"\033[37m" : std::wcout << L"\033[30m";
+				std::wcout << std::setw(squareWidth - 2) << convertChar(board[i][j]);
+				std::wcout << L" " << L"\033[0m";
 			}
 			else {
-				std::wcout << L"\033[46m "; // Black square, white text
-				std::wcout << std::setw(squareWidth - 2) << boardDisplay[i][j] << L" ";
-				std::wcout << L"\033[0m";
+				std::wcout << L"\033[46m "; // Black square
+				(isupper(board[i][j])) ? std::wcout << L"\033[37m" : std::wcout << L"\033[30m";
+				std::wcout << std::setw(squareWidth - 2) << convertChar(board[i][j]);
+				std::wcout << L" " << L"\033[0m";
 			}
 		}
 		std::wcout << L" " << 8 - i << L"\n"; // Row label on the right
@@ -491,70 +512,7 @@ void showBoard(wchar_t boardDisplay[8][8]) {
 	}
 	std::wcout << std::endl;
 }
-/*
-//This function prints the board to the output window in proper format
-// Function to display the chessboard with alternating black and white squares
-void showBoard(char board[][8]) {
-	const int square_width = 4; // Fixed width for each square (including borders and padding)
 
-	for (int i = 0; i < 8; i++) {
-		std::cout << 8 - i << " "; // Row number
-		for (int j = 0; j < 8; j++) {
-			// Determine the square type (alternating black and white squares)
-			if ((i + j) % 2 == 0) {
-				// White square with black text
-				std::cout << "\033[47m\033[30m "; // White background, black text using ANSI escape
-				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
-				std::cout << " \033[0m"; // Reset colors
-			}
-			else {
-				// Black square with white text
-				std::cout << "\033[40m\033[37m "; // Black background, white text using ANSI escape
-				std::cout << std::setw(square_width - 2) << board[i][j]; // Center the piece
-				std::cout << " \033[0m"; // Reset colors
-			}
-		}
-		std::cout << std::endl;
-	}
-
-	// Display column labels
-	std::cout << "   ";
-	for (int i = 0; i < 8; i++) {
-		char c = 'A' + i;
-		std::cout << " " << c << "  ";
-	}
-	std::cout << std::endl;
-}
-*/
-void convertBoard(char board[8][8], wchar_t boardDisplay[8][8]) {
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			switch (board[i][j]) {
-			case 'p': boardDisplay[i][j] = BLACK_PAWN; break;
-			case 'r': boardDisplay[i][j] = BLACK_ROOK; break;
-			case 'n': boardDisplay[i][j] = BLACK_KNIGHT; break;
-			case 'b': boardDisplay[i][j] = BLACK_BISHOP; break;
-			case 'q': boardDisplay[i][j] = BLACK_QUEEN; break;
-			case 'k': boardDisplay[i][j] = BLACK_KING; break;
-			case 'P': boardDisplay[i][j] = WHITE_PAWN; break;
-			case 'R': boardDisplay[i][j] = WHITE_ROOK; break;
-			case 'N': boardDisplay[i][j] = WHITE_KNIGHT; break;
-			case 'B': boardDisplay[i][j] = WHITE_BISHOP; break;
-			case 'Q': boardDisplay[i][j] = WHITE_QUEEN; break;
-			case 'K': boardDisplay[i][j] = WHITE_KING; break;
-			default:  boardDisplay[i][j] = L' '; break;
-			}
-		}
-	}
-	/*for (int i = 0; i < 8; i++) {
-		if (i % 2 == 0) {
-			boardDisplay[0][i] = BLACK_KNIGHT;
-		}
-		else {
-			boardDisplay[0][i] = WHITE_KNIGHT;
-		}
-	}*/
-}
 int main() {
 
 	//The starting chess board
@@ -586,26 +544,60 @@ int main() {
 
 	};
 
-	wchar_t boardDisplay[8][8];
-
-	// Explain notation for users
-	std::wcout << L"Welcome to Chess! Please note the following information:\nUppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
-
+	std::string input;
 	bool whiteTurn = true;
+
+	// Determine whether to start a new game or load an existing save
 	while (true) {
-		convertBoard(board, boardDisplay);
-		showBoard(boardDisplay);
+		std::wcout << L"Welcome to Chess! Would you like to start a new game or load an existing one (N/L): ";
+		std::getline(std::cin, input);
+		if (input[0] == 'L') {
+			std::wcout << L"Enter the name of the save file: ";
+			std::getline(std::cin, input);
+
+			std::ifstream loadFile(input);
+			if (!(loadFile.is_open())) {
+				std::wcout << L"Could not open file. Please try again!\n\n";
+				continue;
+			}
+
+			try {
+				// Load saved piece positions to board and who's turn it is
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						board[i][j] = loadFile.get();
+					}
+				}
+				whiteTurn = !(loadFile.get());
+				loadFile.close();
+			}
+			catch (...) {
+				std::wcout << L"An error occured while loading the file!\n\n";
+				continue;
+			}
+
+			std::wcout << L"File was loaded!\n\n";
+			break;
+		}
+		else if (input[0] == 'N') {
+			std::wcout << L"\n";
+			break;
+		}
+		else {
+			std::wcout << L"Invalid input. Please try again!\n\n";
+			continue;
+		}
+	}
+
+	// Start main game loop
+	while (true) {
+		showBoard(board);
 		// Get user input for move and validate input string format
-		std::wcout << (whiteTurn ? L"White's turn." : L"Black's turn.") << L" Enter move (ex. E2 E4), I for info, or D to offer draw: ";
-		std::string input;
+		std::wcout << (whiteTurn ? L"White's turn." : L"Black's turn.") << L" Enter move (ex. E2 E4), D to offer draw, R to resign, and S to save: ";
 		std::getline(std::cin, input);
 
 		if (input.size() == 1) {
-			if (input[0] == 'I') { // Display information if user wants to see it again
-				std::wcout << L"Uppercase pieces are white, and lowercase pieces are black.\nThe pieces are as follows:\nP = pawn, R = rook, N = knight, B = bishop, Q = queen, K = king\n\n";
-				continue;
-			}
-			else if (input[0] == 'D') { // Handle logic for offering a draw
+			if (input[0] == 'D') { // Handle logic for offering a draw
 				while (true) {
 					std::wcout << (whiteTurn ? L"White" : L"Black") << L" is offering a draw. Do you accept (Y/N): ";
 					std::getline(std::cin, input);
@@ -624,9 +616,47 @@ int main() {
 				}
 				continue;
 			}
+			else if (input[0] == 'R') { // Resigning
+				std::wcout << (whiteTurn ? L"White" : L"Black") << L" has resigned!\n";
+				std::wcout << (whiteTurn ? L"Black" : L"White") << L" wins the game.\n";
+			}
+			else if (input[0] == 'S') { // Saving
+				while (true) {
+					std::wcout << L"Enter a name for the save file: ";
+					std::getline(std::cin, input);
+
+					std::ofstream saveFile(input);
+					if (!(saveFile.is_open())) {
+						std::wcout << L"Could not create file. Please try again!\n\n";
+						continue;
+					}
+
+					try {
+						// Save piece positions to file and who's turn it is
+						for (int i = 0; i < 8; i++) {
+							for (int j = 0; j < 8; j++) {
+								saveFile << board[i][j];
+							}
+						}
+						saveFile << (whiteTurn);
+						saveFile.close();
+					}
+					catch (...) {
+						std::wcout << L"An error occured while saving the file!\n\n";
+						continue;
+					}
+
+					std::wcout << L"File was saved!";
+					return 0;
+				}
+			}
+			else {
+				std::wcout << L"Invalid move input. Please try again!\n\n";
+				continue;
+			}
 		}
 		else if (input.size() != 5 || input[2] != ' ') { // Validate user move input
-			std::wcout << L"Invalid move input. Please try again!\n";
+			std::wcout << L"Invalid move input. Please try again!\n\n";
 			continue;
 		}
 
@@ -641,14 +671,14 @@ int main() {
 
 		// Make sure user's move is within chess board, otherwise prompt to try again
 		if (!coordInBounds(fromX, fromY) || !coordInBounds(toX, toY)) {
-			std::wcout << L"Coordinates out of bounds. Please try again!\n";
+			std::wcout << L"Coordinates out of bounds. Please try again!\n\n";
 			continue;
 		}
 
 		char piece = board[fromY][fromX];
 		// Make sure piece is valid, and white/black depending on turn
 		if (piece == ' ' || (whiteTurn && islower(piece)) || (!whiteTurn && isupper(piece))) {
-			std::wcout << L"Invalid piece selection. Please try again!\n";
+			std::wcout << L"Invalid piece selection. Please try again!\n\n";
 			continue;
 		}
 
@@ -677,7 +707,7 @@ int main() {
 		}
 
 		if (!currentPiece) {
-			std::wcout << L"Piece type invalid. Please try again!\n";
+			std::wcout << L"Piece type invalid. Please try again!\n\n";
 			continue;
 		}
 
@@ -692,7 +722,7 @@ int main() {
 		}
 
 		if (!validMove) {
-			std::wcout << L"Invalid move. Please try again!\n";
+			std::wcout << L"Invalid move. Please try again!\n\n";
 			delete currentPiece;
 			continue;
 		}
@@ -707,7 +737,7 @@ int main() {
 					(currentPiece->isWhite) ? (piece = selection) : (piece = tolower(selection));
 					break;
 				}
-				std::wcout << L"Invalid selection. Please try again!\n";
+				std::wcout << L"Invalid selection. Please try again!\n\n";
 			}
 		}
 
@@ -736,7 +766,7 @@ int main() {
 		if (friendlyKing->inCheckAt(board, kingX, kingY)) {
 			board[toY][toX] = prevPiece;
 			board[fromY][fromX] = piece;
-			std::wcout << L"Move puts king in check. Please try again!\n";
+			std::wcout << L"Move puts king in check. Please try again!\n\n";
 			delete currentPiece;
 			continue;
 		}
@@ -758,7 +788,7 @@ int main() {
 		King* opponentKing = new King(kingX, kingY, !whiteTurn);
 
 		if (opponentKing->inCheckAt(board, kingX, kingY)) {
-			std::wcout << (whiteTurn ? L"Black" : L"White") << L"'s king is in check!\n";
+			std::wcout << (whiteTurn ? L"Black" : L"White") << L"'s king is in check!\n\n";
 			if (opponentKing->inCheckmate(board)) {
 				std::wcout << (whiteTurn ? L"Black" : L"White") << L"'s king has been checkmated!\n";
 				std::wcout << (!whiteTurn ? L"Black" : L"White") << " wins the game.\n";
