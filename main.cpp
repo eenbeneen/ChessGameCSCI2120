@@ -312,8 +312,8 @@ public:
 					continue;
 				}
 
-				//If both i and j are 0, the space is the one the king is\
-				standing on and doesn't need to be checked
+				//If both i and j are 0, the space is the one the king is
+				//standing on and doesn't need to be checked
 				if (i == 0 && j == 0) {
 					continue;
 				}
@@ -412,7 +412,6 @@ public:
 		}
 
 		//If any piece can move somewhere where the king stops being in check, it cannot be checkmate
-
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (board[i][j] != ' ' && isupper(board[i][j]) == isWhite && !(i == yPos && j == xPos)) {
@@ -438,7 +437,6 @@ public:
 						break;
 					}
 
-
 					//Check the possible moves of the piece
 					std::vector<std::vector<int>> possibleMoves = currentPiece->getMoves(board);
 					for (auto move : possibleMoves) {
@@ -456,10 +454,8 @@ public:
 						testBoard[move[1]][move[0]] = temp;
 					}
 				}
-
 			}
 		}
-
 		//If none of the above tests pass, it is checkmate
 		return true;
 	}
@@ -740,8 +736,6 @@ int main() {
 				std::wcout << L"Invalid selection. Please try again!\n\n";
 			}
 		}
-
-		
 
 		// Move piece, but store the char on the space it moves to for later
 		char prevPiece = board[toY][toX];
