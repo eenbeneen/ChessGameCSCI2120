@@ -107,6 +107,17 @@ public:
 					possibleMoves.push_back(convertToVector(xPos, yPos + 2));
 				}
 			}
+
+			//Check the squares diagonally in front of the pawn
+			for (int i = -1; i <= 1; i += 2) {
+
+				//If coords are in bounds and piece is lowercase (black) it can be captured
+				if (coordInBounds(yPos + 1, xPos + i) && !islower(board[yPos + 1][xPos + i])) {
+
+					possibleMoves.push_back(convertToVector(xPos + i, yPos + 1));
+
+				}
+			}
 		}
 
 		return possibleMoves;
